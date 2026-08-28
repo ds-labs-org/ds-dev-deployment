@@ -31,11 +31,19 @@ built-in placeholder:
   result: crawling 2 real DSP participants totaling 10 datasets, not one
   seeded placeholder totaling 2.
 - **`ds-catalog-browser-ui`** (`vendor/ds-catalog-browser-ui`, pinned to
-  its `main` tip) - a minimal read-only Yew UI that fetches offers from
-  that same route and renders them as an expandable table. Served by
+  the still-open `feature/patternfly-theme` branch tip,
+  [PR #1](https://github.com/ds-labs-org/ds-catalog-browser-ui/pull/1)) -
+  a minimal read-only Yew UI that fetches offers from that same route and
+  renders them as an expandable table, themed with the real
+  `patternfly-yew` component library at the same PatternFly/FontAwesome
+  asset versions as `dataspace-rs/edc-web-ui` (see that PR). Served by
   nginx, which proxies the UI's own `catalog_path`
   (`/api/management/v4/catalogs/request`, baked into its
-  `configuration.json`) straight through to the broker container.
+  `configuration.json`) straight through to the broker container. Its
+  Dockerfile's build stage installs Node/npm via apt, since Trunk now
+  shells out to npm to pull the PatternFly/FontAwesome asset packages
+  (`Trunk.toml`'s `[[node_packages]]`) that `rust:*-bookworm` doesn't ship
+  by default.
 
 This is unrelated to the `dcp-test-env` content elsewhere in this repo
 (root `README.md`, `run-*.sh`, `seed/`) - that's a separate DCP/IdentityHub
