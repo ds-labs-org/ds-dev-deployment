@@ -1,0 +1,37 @@
+# DS Catalog Browser stack: a ds-catalog-broker-rs federated catalog
+# broker (seeded, in-memory demo data - no CRAWLER_CONFIG_PATH, no
+# OAUTH2_JWKS_URI) fronted by ds-catalog-browser-ui, a minimal read-only
+# Yew UI served by nginx, which proxies the UI's own
+# /api/management/v4/catalogs/request path straight through to the
+# broker on this plain compose bridge network.
+#
+# See README.catalog-browser.md for usage.
+services:
+  ds-catalog-broker-rs:
+    build:
+      context: vendor/ds-catalog-broker-rs
+      dockerfile: ../../docker/ds-catalog-broker-rs/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # DEFAULT_ADDR in main.rs is 127.0.0.1:8080 (loopback-only), which
+      # is unreachable both from the ds-catalog-browser-ui container (via
+      # the bridge network) and from the host's published port. Bind to
+      # all interfaces inside the container instead.
+      HTTP_API_ADDR: "0.0.0.0:8080"
+      # Intentionally NOT set:
+      #   CRAWLER_CONFIG_PATH - left unset so this connector falls back
+      #     to its documented in-memory seeded sample catalog.
+      #   OAUTH2_JWKS_URI - left unset so both /catalog and the new
+      #     POST /api/management/v4/catalogs/request stay unauthenticated
+      #     (this demo stack has no OAuth2 provider to point at).
+
+  ds-catalog-browser-ui:
+    build:
+      context: vendor/ds-catalog-browser-ui
+      dockerfile: ../../docker/ds-catalog-browser-ui/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      ds-catalog-broker-rs:
+        condition: service_started
