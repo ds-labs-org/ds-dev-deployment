@@ -1,7 +1,10 @@
-# Regenerable, throwaway key material and compiled classes for this local
-# DCP validation environment - never commit private keys, even test ones.
-# Regenerate via README.md.
-keys/
-seed/out/
-seed/*.jar
-seed/*-classpath.txt
+# Generated keypairs and seed-info.json (STS client credentials) -
+# regenerated fresh on first run, whether via docker compose or the
+# bare-metal run-*.sh scripts. See README.md.
+/keys/
+
+# Bare-metal run-*.sh scratch state (captured launcher classpaths,
+# compiled seed classes/jars) - see README.md "Layout".
+/seed/out/
+/seed/*.jar
+/seed/*-classpath.txt
