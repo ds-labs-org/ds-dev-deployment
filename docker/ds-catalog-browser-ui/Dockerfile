@@ -7,6 +7,17 @@
 # as a static site.
 FROM rust:1.97.1-bookworm AS build-stage
 
+# The UI now pulls in patternfly-yew (see vendor/ds-catalog-browser-ui's
+# Trunk.toml [[node_packages]] entries for @patternfly/patternfly and
+# @fortawesome/fontawesome-free), which trunk fetches by shelling out to
+# npm during `trunk build`. rust:*-bookworm has no Node/npm by default, so
+# install it explicitly - Debian bookworm's own nodejs package brings a
+# matching npm along with it, and it's new enough for trunk's npm
+# integration, so there's no need for the NodeSource setup script here.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends nodejs npm && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN rustup target add wasm32-unknown-unknown && \
     cargo install trunk@0.22.0-beta.2
 
