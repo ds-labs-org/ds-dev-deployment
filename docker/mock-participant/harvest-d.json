@@ -7,6 +7,12 @@
     {
       "@id": "HARVEST-D-01",
       "@type": "Dataset",
+      "title": "Soil Moisture Sensor Readings",
+      "description": "Time-series volumetric water content readings from in-field capacitance probes, sampled every 15 minutes across all monitored plots.",
+      "version": "2.3.0",
+      "creatorName": "Harvest D Field Systems",
+      "thumbnail": "/assets/datasets/HARVEST-D-01.svg",
+      "keywords": "soil,moisture,sensors,agriculture",
       "distribution": [
         {
           "@type": "Distribution",
@@ -18,6 +24,12 @@
     {
       "@id": "HARVEST-D-02",
       "@type": "Dataset",
+      "title": "Crop Yield Estimates",
+      "description": "Per-plot projected and actual yield figures derived from multispectral imagery and historical harvest records.",
+      "version": "1.8.2",
+      "creatorName": "Harvest D Field Systems",
+      "thumbnail": "/assets/datasets/HARVEST-D-02.svg",
+      "keywords": "yield,crop,forecast,agriculture",
       "distribution": [
         {
           "@type": "Distribution",
@@ -29,6 +41,12 @@
     {
       "@id": "HARVEST-D-03",
       "@type": "Dataset",
+      "title": "Irrigation Schedule Log",
+      "description": "Historical and planned irrigation events per zone, including duration, volume dispensed, and triggering condition.",
+      "version": "3.1.0",
+      "creatorName": "Harvest D Field Systems",
+      "thumbnail": "/assets/datasets/HARVEST-D-03.svg",
+      "keywords": "irrigation,water,scheduling,agriculture",
       "distribution": [
         {
           "@type": "Distribution",
