@@ -42,13 +42,20 @@ docker compose -f docker-compose.yml up --build -d
 Budget several minutes for the two real Rust builds (both stages of both
 Dockerfiles compile from source, no prebuilt images).
 
-Then open **http://localhost/** - the UI fetches offers from the broker's
-seeded sample catalog (currently two datasets, `CAT0101`/`CAT0102`, under
-`sample-catalog`) and renders them.
+Then open **http://localhost:8092/** - the UI fetches offers from the
+broker's seeded sample catalog (currently two datasets,
+`CAT0101`/`CAT0102`, under `sample-catalog`) and renders them.
+
+`docker-compose.yml` publishes the UI on host port `8092` (not `80`) and
+the broker on host port `8091` (not `8080`) - ports `80` and `8080` were
+already bound to unrelated processes on the host this was built and
+verified on. Edit the `ports:` mapping for either service if `8091`/`8092`
+collide for you too; the container-internal ports (`80` and `8080`, what
+nginx's proxy target and `HTTP_API_ADDR` use) don't need to change.
 
 The broker's own port is also published directly, for debugging:
-`http://localhost:8080/catalog` (`GET`, DSP catalog view) and
-`http://localhost:8080/api/management/v4/catalogs/request` (`POST`, the
+`http://localhost:8091/catalog` (`GET`, DSP catalog view) and
+`http://localhost:8091/api/management/v4/catalogs/request` (`POST`, the
 same management API route the UI calls, proxied through nginx at `/`).
 
 ## Verify the chain end to end
@@ -56,9 +63,9 @@ same management API route the UI calls, proxied through nginx at `/`).
 ```bash
 docker compose ps
 
-curl -s http://localhost/ | head -5   # the app's real index.html, not an nginx default page
+curl -s http://localhost:8092/ | head -5   # the app's real index.html, not an nginx default page
 
-curl -s -X POST http://localhost/api/management/v4/catalogs/request \
+curl -s -X POST http://localhost:8092/api/management/v4/catalogs/request \
   -H "Content-Type: application/json" \
   -d '{"@context":{"@vocab":"https://w3id.org/edc/v0.0.1/ns/"},"@type":"QuerySpec"}' \
   | jq .

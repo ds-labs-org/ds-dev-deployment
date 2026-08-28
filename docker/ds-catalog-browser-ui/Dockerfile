@@ -1,13 +1,16 @@
-# Build context for this Dockerfile is vendor/ds-catalog-browser-ui (see
-# docker-compose.yml). Same proven two-stage pattern as
-# dataspace/vendor/dataspace-rs-ui/Dockerfile: a rust+trunk build stage
-# producing dist/, then nginx serving that dist/ as a static site.
+# Build context for this Dockerfile is the repo root (see
+# docker-compose.yml), so this Dockerfile's own nginx/default.conf (which
+# lives alongside it under docker/, not inside the vendor/
+# ds-catalog-browser-ui submodule) can be ADDed below too. Same proven
+# two-stage pattern as dataspace/vendor/dataspace-rs-ui/Dockerfile: a
+# rust+trunk build stage producing dist/, then nginx serving that dist/
+# as a static site.
 FROM rust:1.97.1-bookworm AS build-stage
 
 RUN rustup target add wasm32-unknown-unknown && \
     cargo install trunk@0.22.0-beta.2
 
-ADD . /sources
+ADD vendor/ds-catalog-browser-ui /sources
 
 WORKDIR /sources
 
@@ -19,7 +22,7 @@ COPY --from=build-stage /sources/dist /usr/share/nginx/html
 
 EXPOSE 80
 
-ADD nginx/default.conf /etc/nginx/conf.d/default.conf
+ADD docker/ds-catalog-browser-ui/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # The repo's own configuration.json (copied into dist/ by trunk's own
 # copy-file directive in index.html) already has this exact shape - this

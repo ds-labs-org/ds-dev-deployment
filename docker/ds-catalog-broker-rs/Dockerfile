@@ -1,5 +1,8 @@
-# Build context for this Dockerfile is vendor/ds-catalog-broker-rs itself
-# (see docker-compose.yml) - that submodule's own root Cargo.toml is a
+# Build context for this Dockerfile is the repo root (see
+# docker-compose.yml) so the nginx-sibling Dockerfile pattern stays
+# consistent and so a .dockerignore at the root can apply to both. The
+# COPY below pulls in just vendor/ds-catalog-broker-rs - that submodule's
+# own root Cargo.toml is a
 # workspace whose members include its nested git submodules
 # (vendor/contreforts-kg, vendor/contreforts-core,
 # vendor/contreforts-core/declaration, vendor/contreforts-config), so the
@@ -19,7 +22,7 @@ FROM rust:1.97.1-bookworm AS build-stage
 
 WORKDIR /sources
 
-COPY . .
+COPY vendor/ds-catalog-broker-rs .
 
 RUN cargo build --release \
     -p catalog-core -p rdf-store -p ds-catalog-broker-rs -p dcp-core -p crawler

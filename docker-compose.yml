@@ -9,10 +9,15 @@
 services:
   ds-catalog-broker-rs:
     build:
-      context: vendor/ds-catalog-broker-rs
-      dockerfile: ../../docker/ds-catalog-broker-rs/Dockerfile
+      context: .
+      dockerfile: docker/ds-catalog-broker-rs/Dockerfile
     ports:
-      - "8080:8080"
+      # Host 8091 -> container 8080: 8080 is already bound to another
+      # process on the host this was verified on - pick a different host
+      # port if 8091 collides for you too. The container's own port
+      # (right-hand side, and what ds-catalog-browser-ui's nginx proxies
+      # to on the compose network) stays 8080 either way.
+      - "8091:8080"
     environment:
       # DEFAULT_ADDR in main.rs is 127.0.0.1:8080 (loopback-only), which
       # is unreachable both from the ds-catalog-browser-ui container (via
@@ -28,10 +33,13 @@ services:
 
   ds-catalog-browser-ui:
     build:
-      context: vendor/ds-catalog-browser-ui
-      dockerfile: ../../docker/ds-catalog-browser-ui/Dockerfile
+      context: .
+      dockerfile: docker/ds-catalog-browser-ui/Dockerfile
     ports:
-      - "80:80"
+      # Host 8092 -> container 80: port 80 is already bound on the host
+      # this was verified on - pick a different host port if 8092
+      # collides for you too.
+      - "8092:80"
     depends_on:
       ds-catalog-broker-rs:
         condition: service_started
