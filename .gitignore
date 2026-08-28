@@ -1,0 +1,7 @@
+# Regenerable, throwaway key material and compiled classes for this local
+# DCP validation environment - never commit private keys, even test ones.
+# Regenerate via README.md.
+keys/
+seed/out/
+seed/*.jar
+seed/*-classpath.txt
