@@ -1,0 +1,49 @@
+{
+  "@context": ["https://w3id.org/dspace/2025/1/context.jsonld"],
+  "@id": "urn:uuid:mock-harvest-d-catalog",
+  "@type": "Catalog",
+  "participantId": "HARVEST-D",
+  "dataset": [
+    {
+      "@id": "HARVEST-D-01",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-d-service"
+        }
+      ]
+    },
+    {
+      "@id": "HARVEST-D-02",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-d-service"
+        }
+      ]
+    },
+    {
+      "@id": "HARVEST-D-03",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-d-service"
+        }
+      ]
+    }
+  ],
+  "service": [
+    {
+      "@id": "harvest-d-service",
+      "@type": "DataService",
+      "endpointURL": "http://mock-harvest-d/api/dsp/2025-1",
+      "endpointDescription": "dspace:connector"
+    }
+  ]
+}

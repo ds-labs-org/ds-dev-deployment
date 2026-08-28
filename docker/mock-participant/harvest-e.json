@@ -1,0 +1,93 @@
+{
+  "@context": ["https://w3id.org/dspace/2025/1/context.jsonld"],
+  "@id": "urn:uuid:mock-harvest-e-catalog",
+  "@type": "Catalog",
+  "participantId": "HARVEST-E",
+  "dataset": [
+    {
+      "@id": "HARVEST-E-01",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-e-service"
+        }
+      ]
+    },
+    {
+      "@id": "HARVEST-E-02",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-e-service"
+        }
+      ]
+    },
+    {
+      "@id": "HARVEST-E-03",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-e-service"
+        }
+      ]
+    },
+    {
+      "@id": "HARVEST-E-04",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-e-service"
+        }
+      ]
+    },
+    {
+      "@id": "HARVEST-E-05",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-e-service"
+        }
+      ]
+    },
+    {
+      "@id": "HARVEST-E-06",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-e-service"
+        }
+      ]
+    },
+    {
+      "@id": "HARVEST-E-07",
+      "@type": "Dataset",
+      "distribution": [
+        {
+          "@type": "Distribution",
+          "format": "application/json",
+          "accessService": "harvest-e-service"
+        }
+      ]
+    }
+  ],
+  "service": [
+    {
+      "@id": "harvest-e-service",
+      "@type": "DataService",
+      "endpointURL": "http://mock-harvest-e/api/dsp/2025-1",
+      "endpointDescription": "dspace:connector"
+    }
+  ]
+}

@@ -1,12 +1,36 @@
 # DS Catalog Browser stack: a ds-catalog-broker-rs federated catalog
-# broker (seeded, in-memory demo data - no CRAWLER_CONFIG_PATH, no
-# OAUTH2_JWKS_URI) fronted by ds-catalog-browser-ui, a minimal read-only
-# Yew UI served by nginx, which proxies the UI's own
+# broker, its CRAWLER_CONFIG_PATH pointed at two mock DSP
+# catalog-participant services (docker/mock-participant/) so it runs its
+# real background crawl loop instead of falling back to its built-in
+# seeded placeholder - fronted by ds-catalog-browser-ui, a minimal
+# read-only Yew UI served by nginx, which proxies the UI's own
 # /api/management/v4/catalogs/request path straight through to the
 # broker on this plain compose bridge network.
 #
-# See README.catalog-browser.md for usage.
+# The two mock participants (harvest-d, harvest-e; 3 and 7 datasets)
+# reuse the exact participant/dataset ids from
+# vendor/ds-catalog-broker-rs's own published harvesting benchmark
+# (compliance/harvest-benchmark-2026-08-27.md in that submodule), so this
+# stack demonstrates real harvesting at the same scale as that verified
+# result rather than the tiny 2-dataset placeholder. See
+# README.catalog-browser.md for usage.
 services:
+  mock-harvest-d:
+    build:
+      context: .
+      dockerfile: docker/mock-participant/Dockerfile
+      args:
+        FIXTURE: harvest-d.json
+    # No host port published - only ds-catalog-broker-rs talks to this,
+    # over the compose bridge network, by service name.
+
+  mock-harvest-e:
+    build:
+      context: .
+      dockerfile: docker/mock-participant/Dockerfile
+      args:
+        FIXTURE: harvest-e.json
+
   ds-catalog-broker-rs:
     build:
       context: .
@@ -24,12 +48,23 @@ services:
       # the bridge network) and from the host's published port. Bind to
       # all interfaces inside the container instead.
       HTTP_API_ADDR: "0.0.0.0:8080"
+      # Points at the bind-mounted participants.toml below - see that
+      # file's own comment. Its catalog_request_url entries name
+      # mock-harvest-d/mock-harvest-e by Docker Compose service name, so
+      # this only resolves on the compose bridge network, not on the
+      # host.
+      CRAWLER_CONFIG_PATH: "/etc/ds-catalog-broker-rs/participants.toml"
       # Intentionally NOT set:
-      #   CRAWLER_CONFIG_PATH - left unset so this connector falls back
-      #     to its documented in-memory seeded sample catalog.
-      #   OAUTH2_JWKS_URI - left unset so both /catalog and the new
+      #   OAUTH2_JWKS_URI - left unset so both /catalog and
       #     POST /api/management/v4/catalogs/request stay unauthenticated
       #     (this demo stack has no OAuth2 provider to point at).
+    volumes:
+      - ./docker/ds-catalog-broker-rs/participants.toml:/etc/ds-catalog-broker-rs/participants.toml:ro
+    depends_on:
+      mock-harvest-d:
+        condition: service_started
+      mock-harvest-e:
+        condition: service_started
 
   ds-catalog-browser-ui:
     build:

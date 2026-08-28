@@ -48,9 +48,11 @@ COPY --from=build-stage /sources/target/release/ds-catalog-broker-rs /usr/local/
 # documentation of that same port, not a substitute for the override.
 EXPOSE 8080
 
-# CRAWLER_CONFIG_PATH is intentionally left unset: this connector falls
-# back to its documented in-memory seeded sample catalog
-# (seed_sample_catalog), giving GET /catalog and
-# POST /api/management/v4/catalogs/request real (if small) demo data
-# without a full harvester/participant setup.
+# CRAWLER_CONFIG_PATH is set by docker-compose.yml (bind-mounting
+# docker/ds-catalog-broker-rs/participants.toml), pointing this connector
+# at the two docker/mock-participant/ services instead of falling back to
+# its documented in-memory seeded sample catalog (seed_sample_catalog).
+# Not set here in the image itself - this Dockerfile stays usable
+# standalone (falls back to the seeded placeholder if CRAWLER_CONFIG_PATH
+# and its bind mount aren't provided by the caller).
 ENTRYPOINT ["/usr/local/bin/ds-catalog-broker-rs"]
