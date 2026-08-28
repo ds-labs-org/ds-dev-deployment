@@ -1,0 +1,6 @@
+[submodule "vendor/ds-catalog-broker-rs"]
+	path = vendor/ds-catalog-broker-rs
+	url = https://github.com/ds-labs-org/ds-catalog-broker-rs.git
+[submodule "vendor/ds-catalog-browser-ui"]
+	path = vendor/ds-catalog-browser-ui
+	url = https://github.com/ds-labs-org/ds-catalog-browser-ui.git
