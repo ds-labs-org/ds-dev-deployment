@@ -163,7 +163,7 @@ entirely, `run-identityhub.sh` and `run-issuer-service.sh` still work
 exactly as before:
 
 ```bash
-cd dev-dev-deployment
+cd ds-dev-deployment
 ./run-identityhub.sh &      # first run builds identity-hub via Gradle - budget several minutes
 ./run-issuer-service.sh &   # same for issuer-service
 sleep 5
