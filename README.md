@@ -93,27 +93,87 @@ issuer-to-holder *delivery* is shortcut.
 - `seed/src/IssuerServiceSeedExtension.java` - same pattern for the
   Issuer Service launcher: creates the `issuer` participant context
   with the same keypair the seeded credential is signed with.
-- `run-identityhub.sh`, `run-issuer-service.sh` - build (once) and run
-  each seeded launcher. Idempotent: safe to re-run, capture the
-  launcher's classpath once per checkout (`seed/*-classpath.txt`,
-  gitignored - regenerate by deleting them) rather than re-invoking
-  Gradle on every start.
+- `vendor/identity-hub` - `eclipse-edc/IdentityHub` vendored as a git
+  submodule, pinned to `v0.18.0` - makes this repo self-contained; the
+  Docker build (and the bare-metal scripts, via `IDENTITY_HUB_DIR`) both
+  build against it directly, no external checkout required.
+- `docker/identityhub/`, `docker/issuer-service/` - `Dockerfile` +
+  `entrypoint.sh` per service; see "Running it" below.
+- `docker-compose.yml` - wires both services together for
+  `docker compose up`.
+- `run-identityhub.sh`, `run-issuer-service.sh` - the bare-metal
+  alternative: build (once) and run each seeded launcher directly with
+  Gradle/`java`. Idempotent: safe to re-run, capture the launcher's
+  classpath once per checkout (`seed/*-classpath.txt`, gitignored -
+  regenerate by deleting them) rather than re-invoking Gradle on every
+  start.
 - `validate.py` - the actual end-to-end DCP validation described above.
   No Rust/federated-catalog-rs dependency.
 - `keys/` (gitignored) - generated keypairs and `seed-info.json` (DIDs +
   STS client credentials for `validate.py` and, eventually, Rust's own
-  test client). Regenerated fresh on first run of either `run-*.sh`
-  script; delete the whole directory to force fresh keys/participants.
+  test client). Regenerated fresh on first run, whether via
+  `docker compose up` or either `run-*.sh` script; delete the whole
+  directory to force fresh keys/participants.
 
 ## Running it
 
+Docker is the primary, recommended way to run this environment - it's
+self-contained (this repo vendors `eclipse-edc/IdentityHub` itself as a
+git submodule at `vendor/identity-hub`, pinned to `v0.18.0`) and needs
+nothing but Docker and Docker Compose on the host:
+
 ```bash
-cd federated-catalog-rs/compliance/dcp-test-env
+git submodule update --init
+docker compose up --build -d   # first run builds both services via Gradle inside Docker - budget several minutes
+docker compose ps              # wait for both to report "healthy"
+python3 validate.py
+docker compose down
+```
+
+`docker-compose.yml` runs both services with `network_mode: host`
+(Linux-only - see "Networking note" below) so they resolve each other's
+`did:web` documents, and are themselves resolved by `validate.py`
+running on the host, via the exact same `localhost:9080-9084` /
+`localhost:9090-9095` ports documented below - no DID host, port, or env
+var differs from the bare-metal path. `docker/identityhub/Dockerfile`
+and `docker/issuer-service/Dockerfile` build each launcher from
+`vendor/identity-hub` (multi-stage: a builder stage runs the real
+upstream Gradle `shadowJar` build and compiles this repo's seed
+extension against it, then a runtime stage matching upstream's own
+`launcher/*/Dockerfile` shape). Both containers bind-mount the same
+host `./keys` directory (gitignored, regenerated fresh on first run,
+same as the bare-metal path below) since `issuer-key` must be shared
+between them - see `seed/src/GenerateIssuerKey.java`.
+
+### Networking note
+
+`network_mode: host` only works on Linux (Docker Desktop on macOS/
+Windows runs containers in a VM, where host networking doesn't expose
+container ports to the host the same way) - this is a real limitation
+of this compose file, not glossed over. It's used here because the
+seeded DIDs and every `SEED_*_DID_HOST` value are hardcoded to plain
+`localhost:PORT` (see "DID hosting" details throughout this doc);
+bridge networking would give each container its own hostname/IP and
+break that DID resolution without changing the seed extensions.
+
+### Bare-metal alternative
+
+If you have your own JDK/Gradle setup and want to skip Docker
+entirely, `run-identityhub.sh` and `run-issuer-service.sh` still work
+exactly as before:
+
+```bash
+cd ds-dev-deployment
 ./run-identityhub.sh &      # first run builds identity-hub via Gradle - budget several minutes
 ./run-issuer-service.sh &   # same for issuer-service
 sleep 5
 python3 validate.py
 ```
+
+These default to a *sibling* `dataspace/vendor/identity-hub` checkout
+(`IDENTITY_HUB_DIR`, see the scripts) rather than this repo's own
+`vendor/identity-hub` submodule - override `IDENTITY_HUB_DIR` if you'd
+rather point them at the submodule.
 
 ## Port map
 
@@ -153,6 +213,14 @@ explicitly afterward; skipping this leaves the DID document unpublished
 not an error - easy to miss.
 
 ## Cleanup
+
+Docker path:
+
+```bash
+docker compose down
+```
+
+Bare-metal path:
 
 ```bash
 pkill -f 'org.eclipse.edc.boot.system.runtime.BaseRuntime.*identity-hub'

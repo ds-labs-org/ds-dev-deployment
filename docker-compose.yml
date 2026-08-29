@@ -1,3 +1,9 @@
+# Two independent service groups sharing this one compose file - they
+# don't talk to each other, and use different networking modes (bridge
+# vs host), but there is no reason to make someone run two separate
+# `docker compose -f` invocations for two unrelated dev stacks in the
+# same repo.
+#
 # DS Catalog Browser stack: a ds-catalog-broker-rs federated catalog
 # broker, its CRAWLER_CONFIG_PATH pointed at two mock DSP
 # catalog-participant services (docker/mock-participant/) so it runs its
@@ -14,6 +20,24 @@
 # stack demonstrates real harvesting at the same scale as that verified
 # result rather than the tiny 2-dataset placeholder. See
 # README.catalog-browser.md for usage.
+#
+# dcp-test-env stack (identityhub, issuer-service, below): containerized
+# Identity Hub + Issuer Service. network_mode: host is required
+# (Linux-only - see README.md "Running it") because the seeded
+# DIDs/config are hardcoded to plain "localhost:PORT"
+# (did:web:localhost%3A9083:..., did:web:localhost%3A9093:... etc. - see
+# seed/src/*SeedExtension.java and both entrypoint.sh scripts), exactly
+# matching what run-identityhub.sh/run-issuer-service.sh already use
+# bare-metal. Bridge networking would give each container its own
+# hostname/IP, breaking that DID resolution without rewriting the seed
+# extensions and every SEED_*_DID_HOST value. Both services bind-mount
+# the same host ./keys directory because issuer-key must be the SHARED
+# keypair both containers read (see seed/src/GenerateIssuerKey.java's doc
+# comment) - delete ./keys to force fresh keys/participants on the next
+# `docker compose up`, same as the bare-metal scripts. No port collision
+# with the catalog browser stack above: host networking uses
+# 9080-9084/9090-9095 directly, the catalog browser stack publishes
+# 8091/8092.
 services:
   mock-harvest-d:
     build:
@@ -78,3 +102,19 @@ services:
     depends_on:
       ds-catalog-broker-rs:
         condition: service_started
+
+  identityhub:
+    build:
+      context: .
+      dockerfile: docker/identityhub/Dockerfile
+    network_mode: host
+    volumes:
+      - ./keys:/app/keys
+
+  issuer-service:
+    build:
+      context: .
+      dockerfile: docker/issuer-service/Dockerfile
+    network_mode: host
+    volumes:
+      - ./keys:/app/keys

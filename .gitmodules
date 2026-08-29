@@ -4,3 +4,6 @@
 [submodule "vendor/ds-catalog-browser-ui"]
 	path = vendor/ds-catalog-browser-ui
 	url = https://github.com/ds-labs-org/ds-catalog-browser-ui.git
+[submodule "vendor/identity-hub"]
+	path = vendor/identity-hub
+	url = https://github.com/eclipse-edc/IdentityHub.git
