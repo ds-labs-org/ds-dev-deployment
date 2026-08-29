@@ -1,0 +1,35 @@
+# crates/crawler config (vendor/ds-catalog-broker-rs) for this compose
+# stack's own demo crawl, bind-mounted into the ds-catalog-broker-rs
+# container and pointed to via CRAWLER_CONFIG_PATH in docker-compose.yml.
+#
+# Mirrors vendor/ds-catalog-broker-rs/compliance/harvest-bench/participants.toml
+# (the config that project's own published harvesting benchmark -
+# compliance/harvest-benchmark-2026-08-27.md - used against two real
+# Eclipse EDC 0.18.0 participants) exactly in participant/dataset ids and
+# interval_secs, for direct traceability to that real, verified result.
+# The only thing that differs is catalog_request_url: the benchmark's
+# real EDC instances lived on 127.0.0.1 loopback ports; this stack's
+# targets are the two mock-participant services defined in
+# docker-compose.yml (docker/mock-participant/), reachable by Docker
+# Compose service name on the stack's own bridge network.
+#
+# `requires_dcp = false` for both, same documented scope decision as the
+# real benchmark (no DCP in this demo stack either - see
+# README.catalog-browser.md).
+#
+# Matches the schema in crates/crawler/src/config.rs
+# (ParticipantsConfig/ParticipantEntry).
+
+interval_secs = 5
+
+[[participants]]
+id = "harvest-d"
+name = "Harvest participant D (3 datasets)"
+catalog_request_url = "http://mock-harvest-d/api/dsp/2025-1/catalog/request"
+requires_dcp = false
+
+[[participants]]
+id = "harvest-e"
+name = "Harvest participant E (7 datasets)"
+catalog_request_url = "http://mock-harvest-e/api/dsp/2025-1/catalog/request"
+requires_dcp = false
